@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="swd.logistics.dao.PlacingOrderTemplateMapper" >
+  <resultMap id="BaseResultMap" type="swd.logistics.po.PlacingOrderTemplate" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="order_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="printTemplate" property="printtemplate" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_placing_order
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="swd.logistics.po.PlacingOrderTemplate" useGeneratedKeys="true" keyProperty="id" >
+    insert into t_placing_order ( order_id, update_time,
+      printTemplate)
+    values (#{orderId,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP},
+      #{printtemplate,jdbcType=LONGVARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="swd.logistics.po.PlacingOrderTemplate" >
+    update t_placing_order
+    set order_id = #{orderId,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      printTemplate = #{printtemplate,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, order_id, update_time, printTemplate
+    from t_placing_order
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, order_id, update_time, printTemplate
+    from t_placing_order
+  </select>
+
+
+
+  <select id="ByOrderId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select id, order_id, update_time, printTemplate
+    from t_placing_order
+    where order_id = #{orderId,jdbcType=BIGINT}
+  </select>
+
+  <update id="updateByOrderId" parameterType="swd.logistics.po.PlacingOrderTemplate" >
+    update t_placing_order
+    set
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      printTemplate = #{printtemplate,jdbcType=LONGVARCHAR}
+    where order_id = #{orderId,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,54 @@
+package swd.logistics.logisticsUtils;
+
+import swd.logistics.bo.Customer;
+
+public class CustomerUtil {
+
+    public static Customer getCustomer(String shipperCode){
+        Customer customer = null;
+        switch (shipperCode){
+            case "STO":customer = new Customer();//申通
+            customer.setCustomerName("teststo");
+            customer.setCustomerPwd("testpwd");
+            customer.setSendSite("teststosendsite");
+            customer.setTemplateSize("150");break;
+            case "HHTT":customer = new Customer();//天天
+                customer.setCustomerName("testhhtt");
+                customer.setCustomerPwd("testhhttpwd");
+                customer.setSendSite("testhhttsite");
+                customer.setTemplateSize("");break;
+            case "ZTO":customer = new Customer();//中通
+                customer.setCustomerName("testzto");
+                customer.setCustomerPwd("testztopwd");
+                customer.setSendSite("");
+                customer.setTemplateSize("");break;
+            case "YD":customer = new Customer();//韵达
+                customer.setCustomerName("testyd");
+                customer.setCustomerPwd("testydpwd");
+                customer.setSendSite("");
+                customer.setTemplateSize("180");break;
+            case "HTKY":customer = new Customer();//百世
+                customer.setCustomerName("testhtky");
+                customer.setCustomerPwd("testhtkypwd");
+                customer.setSendSite("");
+                customer.setTemplateSize("");break;
+            case "YTO":customer = new Customer();//圆通
+                customer.setCustomerName("testyto");
+                customer.setCustomerPwd("");
+                customer.setSendSite("");
+                customer.setTemplateSize("180");break;
+            case "DBL":customer = new Customer();//德邦
+                customer.setCustomerName("testdbl");
+                customer.setCustomerPwd("");
+                customer.setSendSite("");
+                customer.setTemplateSize("18002");
+                customer.setPayType(3);break;//月结模式
+                default:customer = new Customer();//默认空
+                    customer.setCustomerName("");
+                    customer.setCustomerPwd("");
+                    customer.setSendSite("");
+                    customer.setTemplateSize("");break;
+        }
+        return customer;
+    }
+}

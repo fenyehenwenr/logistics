@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="swd.logistics.dao.LogisticsInfoMapper" >
+  <resultMap id="BaseResultMap" type="swd.logistics.po.LogisticsInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="ShipperCode" property="ShipperCode" jdbcType="VARCHAR" />
+    <result column="LogisticCode" property="LogisticCode" jdbcType="VARCHAR" />
+    <result column="Success" property="Success" jdbcType="TINYINT" />
+    <result column="Reason" property="Reason" jdbcType="VARCHAR" />
+    <result column="State" property="State" jdbcType="VARCHAR" />
+    <result column="push_id" property="pushId" jdbcType="BIGINT" />
+    <collection property="traces" ofType="swd.logistics.po.Traces">
+      <id column="traces_id" property="tracesId" jdbcType="BIGINT"></id>
+      <result column="acceptTime" property="AcceptTime" jdbcType="TIMESTAMP" />
+      <result column="acceptStation" property="AcceptStation" jdbcType="VARCHAR" />
+      <result column="logistics_info_id" property="logisticsInfoId" jdbcType="BIGINT" />
+    </collection>
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_logistics_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="swd.logistics.po.LogisticsInfo" useGeneratedKeys="true" keyProperty="id">
+    insert into t_logistics_info (ShipperCode, LogisticCode,
+      Success, Reason, State,push_id
+      )
+    values (#{ShipperCode,jdbcType=VARCHAR}, #{LogisticCode,jdbcType=VARCHAR},
+      #{Success,jdbcType=TINYINT}, #{Reason,jdbcType=VARCHAR}, #{State,jdbcType=VARCHAR},#{pushId,jdbcType=BIGINT}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="swd.logistics.po.LogisticsInfo" >
+    update t_logistics_info
+    set ShipperCode = #{ShipperCode,jdbcType=VARCHAR},
+      LogisticCode = #{LogisticCode,jdbcType=VARCHAR},
+      Success = #{Success,jdbcType=TINYINT},
+      Reason = #{Reason,jdbcType=VARCHAR},
+      State = #{State,jdbcType=VARCHAR},
+      push_id = #{pushId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, ShipperCode, LogisticCode, Success, Reason, State,push_id
+    from t_logistics_info
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, ShipperCode, LogisticCode, Success, Reason, State, push_id
+    from t_logistics_info
+  </select>
+
+  <update id="updateByLogisticsCode" parameterType="swd.logistics.po.LogisticsInfo" >
+    update t_logistics_info
+    set
+      Reason = #{Reason,jdbcType=VARCHAR},
+      State = #{State,jdbcType=VARCHAR}
+    where LogisticCode = #{LogisticCode,jdbcType=BIGINT}
+  </update>
+
+  <select id="ByLogisticsCodeInfo" resultMap="BaseResultMap">
+    select * from t_logistics_info t_log inner join t_traces t_tra on t_log.id = t_tra.logistics_info_id
+    where t_log.LogisticCode = #{LogisticCode,jdbcType=BIGINT}
+  </select>
+</mapper>

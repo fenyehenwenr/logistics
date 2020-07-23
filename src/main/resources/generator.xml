@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC
+        "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+
+    <classPathEntry location="E:\SWD\agent\src\main\resources\lib\mysql-connector-java-8.0.17.jar"/>
+
+    <!--JDBC数据库连接-->
+
+
+    <context id="context" targetRuntime="MyBatis3Simple">
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+            <property name="suppressDate" value="true"/>
+        </commentGenerator>
+        <!--JDBC数据库连接-->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+         connectionURL="jdbc:mysql://localhost:3306/logistics?serverTimezone=UTC"
+        userId="root"
+        password="root">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!--bean-->
+        <javaModelGenerator targetPackage="swd.logistics.po" targetProject=".\src\main\java">
+            <property name="enableSubPackages" value="false"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!--mapper文件-->
+        <sqlMapGenerator targetPackage="mapper"  targetProject=".\src\main\resources">
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+
+        <!--dao层接口-->
+        <javaClientGenerator targetPackage="swd.logistics.dao"  type="XMLMAPPER" targetProject=".\src\main\java">
+            <property name="enableSubPackages" value="false"/>
+        </javaClientGenerator>
+
+        <table schema="logistics" tableName="t_push_logistics" domainObjectName="PushLogistics" enableCountByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" enableUpdateByExample="false"/>
+
+    </context>
+        </generatorConfiguration>

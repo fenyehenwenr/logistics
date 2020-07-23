@@ -1,0 +1,54 @@
+package swd.logistics.pushInterface;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import swd.logistics.bo.KdniaoConfig;
+import swd.logistics.bo.PushLogisticsInfo;
+import swd.logistics.bo.PushReturn;
+import swd.logistics.po.LogisticsInfo;
+import swd.logistics.po.PushLogistics;
+import swd.logistics.service.PushLogisticsService;
+import swd.logistics.utils.Empty;
+
+import java.util.Date;
+import java.util.List;
+
+@RestController
+@RequestMapping("push")
+public class PushController {
+
+    @Autowired
+    private PushLogisticsService pushLogisticsService;
+
+    @Autowired
+    private KdniaoConfig kdniaoConfig;
+
+    /////////@RequestBody接json转对象，字段一定不能用private!!!!!
+    @RequestMapping(value = "data",method = RequestMethod.POST)
+    public PushReturn getPushData(@RequestBody PushLogisticsInfo pushLogisticsInfo){
+        PushReturn pushReturn = null;
+        if (Empty.isNotEmpty(pushLogisticsInfo.getCount())){
+            List<LogisticsInfo> data = pushLogisticsInfo.getData();
+            if (Empty.isNotEmpty(data)){
+                 pushReturn = pushLogisticsService.savePushData(pushLogisticsInfo);
+                String result = JSON.toJSONString(pushReturn);
+                System.out.println(result);
+                return pushReturn;
+            }
+        }
+            pushReturn = new PushReturn();
+            pushReturn.setUpdateTime(new Date());
+            pushReturn.setSuccess(false);
+            pushReturn.setReason("推送的数据为空？？？");
+            pushReturn.setEBusinessID(kdniaoConfig.EBusinessID);
+        String result = JSON.toJSONString(pushReturn);
+        System.out.println(result);
+        return pushReturn;
+    }
+}

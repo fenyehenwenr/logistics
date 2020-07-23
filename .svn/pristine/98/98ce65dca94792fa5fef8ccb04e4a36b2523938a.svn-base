@@ -1,0 +1,142 @@
+package swd.logistics.service.impl;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import swd.logistics.bo.KdniaoConfig;
+import swd.logistics.bo.PushLogisticsInfo;
+import swd.logistics.bo.PushReturn;
+import swd.logistics.dao.LogisticsInfoMapper;
+import swd.logistics.dao.PushLogisticsMapper;
+import swd.logistics.dao.TracesMapper;
+import swd.logistics.po.LogisticsInfo;
+import swd.logistics.po.PushLogistics;
+import swd.logistics.po.Traces;
+import swd.logistics.service.PushLogisticsService;
+import swd.logistics.utils.Empty;
+
+import java.util.Date;
+import java.util.List;
+@Service
+public class PushLogisticsImpl implements PushLogisticsService {
+    @Autowired
+    private PushLogisticsMapper pushLogisticsMapper;
+
+    @Autowired
+    private LogisticsInfoMapper logisticsInfoMapper;
+
+    @Autowired
+    private TracesMapper tracesMapper;
+
+    @Autowired
+    private KdniaoConfig kdniaoConfig;
+
+    Logger log = LoggerFactory.getLogger(this.getClass());
+
+    @Override
+    public int deleteByPrimaryKey(Long id) {
+        return 0;
+    }
+
+    @Override
+    public int insert(PushLogistics record) {
+        return pushLogisticsMapper.insert(record);
+    }
+
+    @Override
+    public PushLogistics selectByPrimaryKey(Long id) {
+        return pushLogisticsMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
+    public List<PushLogistics> selectAll() {
+        return pushLogisticsMapper.selectAll();
+    }
+
+    @Override
+    public int updateByPrimaryKey(PushLogistics record) {
+        return pushLogisticsMapper.updateByPrimaryKey(record);
+    }
+
+    @Override
+    public PushReturn savePushData(PushLogisticsInfo pushLogisticsInfo) {
+        PushReturn pushReturn = new PushReturn();
+        pushReturn.setUpdateTime(new Date());
+        pushReturn.setEBusinessID(kdniaoConfig.EBusinessID);
+
+        PushLogistics pushLogistics = new PushLogistics();
+        pushLogistics.setCount(pushLogisticsInfo.getCount());
+        pushLogistics.setPushTime(pushLogisticsInfo.getPushTime());
+        int insertResult = pushLogisticsMapper.insert(pushLogistics);
+        if (insertResult > 0) {
+            log.info("插入推送消息成功。");
+            int successNum = 0;
+            List<LogisticsInfo> data = pushLogisticsInfo.getData();
+            for (int i = 0; i < data.size(); i++) {
+                data.get(i).setPushId(pushLogistics.getId());
+                Boolean isSuccess = saveLogisticsInfo(data.get(i));
+                if (isSuccess){
+                    successNum ++;
+                }
+            }
+            if (successNum == data.size()){//推送的数据已经全部接收，可以返回成功消息
+                pushReturn.setSuccess(true);
+                pushReturn.setReason("已全部接收，感谢推送！");
+                log.info("已全部接收，感谢推送！");
+                return pushReturn;
+            }
+            pushReturn.setSuccess(true);
+            pushReturn.setReason("推送信息只接收成功部分。请重试");
+            log.error("推送信息只接收成功部分。请重试");
+            return pushReturn;
+        }
+        pushReturn.setSuccess(false);
+        pushReturn.setReason("推送信息接收失败。请重试");
+        log.error("推送信息接收失败。请重试");
+        return pushReturn;
+    }
+
+    public Boolean saveLogisticsInfo(LogisticsInfo logisticsInfo){
+        Boolean returnResult = false;
+        LogisticsInfo isHas = logisticsInfoMapper.ByLogisticsCode(logisticsInfo.getLogisticCode());
+        if (Empty.isNotEmpty(isHas)){//数据库里是否已有。（已推送过或者即时查询过）
+            log.info("走更新逻辑");
+            isHas.setState(logisticsInfo.getState());//更新物流信息状态
+            int updateResult = logisticsInfoMapper.updateByLogisticsCode(isHas);
+            if (updateResult > 0) {//没有很好的更新轨迹方法。所以先删除轨迹信息，再插入
+                tracesMapper.deleteBylogisticsInfoId(isHas.getId());
+                    int insertResult = tracesMapper.saveTracesByInfo(logisticsInfo.getTraces());
+                    log.info("插入所有的轨迹信息:结果条数为："+insertResult);
+                    if (insertResult == logisticsInfo.getTraces().size()){
+                        returnResult = true;
+                        return returnResult;
+                    }
+                    log.error("轨迹信息插入不完整，结果集："+insertResult);
+            }else {
+                log.error("更新物流信息失败，updateResult结果集为："+updateResult);
+            }
+
+        }else { //插入逻辑
+            log.info("走新增逻辑");
+            int insertResult = logisticsInfoMapper.insert(logisticsInfo);
+            if (insertResult > 0) {//先插入这条物流信息，成功后再去更新轨迹
+                List<Traces> traces = logisticsInfo.getTraces();
+                for (int i = 0; i < traces.size() ; i++) {//将物流和轨迹信息关联起来
+                    traces.get(i).setLogisticsInfoId(logisticsInfo.getId());
+                }
+                int insertTraces = tracesMapper.saveTracesByInfo(traces);
+                log.info("插入所有的轨迹信息:结果条数为："+insertTraces);
+                if (insertTraces == traces.size()){
+                    returnResult = true;
+                    return returnResult;
+                }
+                log.error("轨迹信息插入不完整，结果集："+insertTraces);
+            }else {
+                log.error("物流信息logisticsInfo插入不成功，无法继续更新轨迹信息,结果集："+insertResult);
+            }
+
+        }
+        return returnResult;
+    }
+}

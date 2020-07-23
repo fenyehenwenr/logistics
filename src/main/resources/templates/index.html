@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+<script src='/c-lodop/LodopFuncs.js'></script>
+<body>
+<div style="float: right">
+    <button type="button" class="btn btn-primary" onclick="printTemplate()">原始按钮</button>
+</div>
+<div id="app" style="margin-left: 15px;padding: 5px">
+</div>
+<script type="text/javascript">
+    var strHTML;
+    var LODOP;
+    var num;
+    $(document).ready(function(){
+        $.ajax({
+            url:"/template/all",
+            type:"get",
+            success:function (result) {
+                if (result.code == "1000"){
+                    num = result.data.length;
+                    for (var i = 0; i <result.data.length ; i++) {
+                        $("#app").append('<div name="dzmd" style="margin: 10px;padding: 0px"></div>')
+                    }
+                    strHTML=document.getElementsByName("dzmd");
+                    strHTML.forEach(function (element,index,arr) {
+                        element.innerHTML=result.data[index].printtemplate;
+                    })
+                }
+
+            }
+        })
+
+    });
+    
+    function printTemplate() {
+
+        LODOP = getLodop();
+        var items = 0;
+        if (num > 20){
+          var gropus = Math.ceil(num / 20);
+          var ys = num % 20;
+            for (var i = 1; i <=gropus ; i++) {
+                console.log("第"+i+"轮")
+                LODOP.PRINT_INIT("快递电子面单打印");
+                LODOP.SET_PRINT_STYLE("FontSize",23);
+                LODOP.SET_PRINT_STYLE("Bold",1);
+                for (var j = 0; j < 20; j++) {
+                    if (i == gropus){
+                        if (ys > 0){
+                            if (j > ys){
+                                console.log("第"+i+"轮的第"+j+"次")
+                                break;
+                            }
+                        }
+                    }
+
+                    CreateOnePage(strHTML[items].innerHTML)
+                    items++;
+                }
+                LODOP.SET_PRINT_MODE("CUSTOM_TASK_NAME","快递电子面单"+i);//为每个打印单独设置任务名
+                LODOP.PREVIEW();
+            }
+            return;
+        }
+        LODOP.PRINT_INIT("快递电子面单打印");
+        LODOP.SET_PRINT_STYLE("FontSize",23);
+        LODOP.SET_PRINT_STYLE("Bold",1);
+        strHTML.forEach(function (element){
+            CreateOnePage(element.innerHTML)
+        })
+        LODOP.SET_PRINT_MODE("CUSTOM_TASK_NAME","快递电子面单");//为每个打印单独设置任务名
+        LODOP.PRINT();
+
+
+    }
+
+    function CreateOnePage(ht){
+        LODOP.NewPage();
+        LODOP.ADD_PRINT_HTM(30,10,"100%","100%",ht);
+    };
+</script>
+</body>
+</html>

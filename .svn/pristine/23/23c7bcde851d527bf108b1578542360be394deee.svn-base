@@ -1,0 +1,123 @@
+package swd.logistics.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import swd.logistics.bo.PlacingOrderInfo;
+import swd.logistics.po.LogisticsInfo;
+import swd.logistics.bo.OrderReturnInfo;
+import swd.logistics.bo.PlacingOrderReturn;
+import swd.logistics.po.Sender;
+import swd.logistics.service.LogisticsInfoService;
+import swd.logistics.service.SenderService;
+import swd.logistics.utils.Empty;
+import swd.logistics.utils.EnumUtils.ReturnCode;
+import swd.logistics.utils.ReturnInfor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("logisticsInfo")
+public class LogisticsController {
+
+    @Autowired
+    private LogisticsInfoService logisticsInfoService;
+    @Autowired
+    private SenderService senderService;
+
+    @RequestMapping(value = "save",method = RequestMethod.POST)
+    public LogisticsInfo saveLogisticsInfo(@RequestBody LogisticsInfo logisticsInfo){
+        LogisticsInfo info = null;
+        if (Empty.isNotEmpty(logisticsInfo)){
+             info = logisticsInfoService.saveLogisticsInfo(logisticsInfo);
+        }
+        return Empty.isNotEmpty(info) ? logisticsInfo : null;
+    }
+
+    @RequestMapping(value = "getInfo",method = RequestMethod.GET)//即时查询物流信息
+    public ReturnInfor getInfo(@RequestParam("ShipperCode") String shipperCode, @RequestParam("LogisticCode") String logisticCode){
+        if (Empty.isNotEmpty(shipperCode) && Empty.isNotEmpty(shipperCode)){
+            try {
+                LogisticsInfo info = logisticsInfoService.getLogisticsInfoByImmediate(shipperCode, logisticCode);
+                if (Empty.isNotEmpty(info)){
+                    return new ReturnInfor(info);
+                }else {
+                    return new ReturnInfor(ReturnCode.NOT_DATA,"没有查询到物流信息");
+                }
+            } catch (Exception e) {
+                return new ReturnInfor(ReturnCode.ERROR,e.getMessage());
+            }
+        }
+        return new ReturnInfor(ReturnCode.PARAMETER_ERROR,"传入的参数为空");
+    }
+
+    @RequestMapping(value = "placingOrder",method = RequestMethod.POST)//电子面单下单
+    public ReturnInfor placingOrder(@RequestBody List<PlacingOrderInfo> placingOrderInfos){
+            //接收到了传输的数据
+        List<PlacingOrderReturn> list = new ArrayList<>();
+            Sender sender = senderService.byIsDefault(1);
+        for (int i = 0; i < placingOrderInfos.size(); i++) {
+            placingOrderInfos.get(i).setSender(sender);
+            OrderReturnInfo orderReturnInfo = null;
+            try {
+                orderReturnInfo = logisticsInfoService.placingOrder(placingOrderInfos.get(i));
+                orderReturnInfo.getOrder().setPrintTemplate(orderReturnInfo.getPrintTemplate());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ReturnInfor(ReturnCode.ERROR,e.getMessage());
+            }
+            if (Empty.isNotEmpty(orderReturnInfo)) {
+                if (orderReturnInfo.getSuccess()) {
+                    list.add(orderReturnInfo.getOrder());
+                }
+            }
+        }
+        if (list.size() == placingOrderInfos.size()){
+            return new ReturnInfor(list);
+        }
+        return new ReturnInfor(6000,"只有下面这些订单成功下单。",list);
+
+    }
+
+    @RequestMapping(value = "cancelOrder",method = RequestMethod.GET)
+    public ReturnInfor cancelOrder(@RequestParam String ShipperCode,@RequestParam String OrderCode,@RequestParam String ExpNo){
+        if (Empty.isNotEmpty(ShipperCode) && Empty.isNotEmpty(OrderCode) && Empty.isNotEmpty(ExpNo)) {
+            try {
+                ReturnInfor returnInfor = logisticsInfoService.cancelOrder(ShipperCode, OrderCode, ExpNo);
+                return returnInfor;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ReturnInfor(ReturnCode.ERROR,e.getMessage());
+            }
+
+        }
+        return new ReturnInfor(ReturnCode.PARAMETER_ERROR,null);
+    }
+
+    @RequestMapping(value = "logisticsSubscribe",method = RequestMethod.POST)//物流轨迹订阅
+    public ReturnInfor logisticsSubscribe(@RequestBody PlacingOrderInfo placingOrderInfo){
+        if (Empty.isNotEmpty(placingOrderInfo.getReceiver()) && Empty.isNotEmpty(placingOrderInfo.getCommodity())){
+            //接收到了传输的数据
+            Sender sender = senderService.byIsDefault(1);
+            placingOrderInfo.setSender(sender);
+            ReturnInfor returnInfor = null;
+            try {
+                returnInfor = logisticsInfoService.logisticsSubscribe(placingOrderInfo);
+                return returnInfor;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ReturnInfor(ReturnCode.ERROR,e.getMessage());
+            }
+        }
+        return new ReturnInfor(ReturnCode.PARAMETER_ERROR,"传入的参数为空");
+    }
+
+    @RequestMapping(value = "userQuery",method = RequestMethod.GET)
+    public ReturnInfor userQuery(@RequestParam("LogisticCode") String logisticCode){
+        if (Empty.isNotEmpty(logisticCode)){
+            LogisticsInfo logisticsInfo = logisticsInfoService.userQuery(logisticCode);
+            return new ReturnInfor(logisticsInfo);
+        }
+        return new ReturnInfor(ReturnCode.PARAMETER_ERROR,"参数效验失败，传入的参数为空");
+    }
+}

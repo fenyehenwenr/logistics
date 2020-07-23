@@ -1,0 +1,94 @@
+package swd.logistics.po;
+
+import swd.logistics.bo.BasePOJO;
+
+import java.util.List;
+
+public class LogisticsInfo extends BasePOJO {
+    public Long id;
+
+    public Boolean Success;
+
+    public String Reason;
+
+    public String State;
+
+    public List<Traces> Traces;
+
+    public Long pushId;
+
+
+    public String OrderCode;//id,对应数据库的id
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Boolean getSuccess() {
+        return Success;
+    }
+
+    public void setSuccess(Boolean Success) {
+        Success = Success;
+    }
+
+    public String getReason() {
+        return Reason;
+    }
+
+    public void setReason(String Reason) {
+        Reason = Reason;
+    }
+
+    public String getState() {
+        return State;
+    }
+
+    public void setState(String State) {
+        State = State;
+    }
+
+    public List<swd.logistics.po.Traces> getTraces() {
+        return Traces;
+    }
+
+    public void setTraces(List<swd.logistics.po.Traces> Traces) {
+        Traces = Traces;
+    }
+
+    public Long getPushId() {
+        return pushId;
+    }
+
+    public void setPushId(Long pushId) {
+        this.pushId = pushId;
+    }
+
+    public String getOrderCode() {
+        return OrderCode;
+    }
+
+    public void setOrderCode(String orderCode) {
+        OrderCode = orderCode;
+    }
+
+    @Override
+    public String toString() {
+        return "LogisticsInfo{" +
+                "id=" + id +
+                ", Success=" + Success +
+                ", Reason='" + Reason + '\'' +
+                ", State='" + State + '\'' +
+                ", Traces=" + Traces +
+                ", pushId=" + pushId +
+                ", OrderCode='" + OrderCode + '\'' +
+                ", EBusinessID='" + EBusinessID + '\'' +
+                ", ShipperCode='" + ShipperCode + '\'' +
+                ", LogisticCode='" + LogisticCode + '\'' +
+                '}';
+    }
+}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="swd.logistics.dao.TracesMapper" >
+  <resultMap id="BaseResultMap" type="swd.logistics.po.Traces" >
+    <id column="traces_id" property="tracesId" jdbcType="BIGINT" />
+    <result column="acceptTime" property="AcceptTime" jdbcType="TIMESTAMP" />
+    <result column="acceptStation" property="AcceptStation" jdbcType="VARCHAR" />
+    <result column="logistics_info_id" property="logisticsInfoId" jdbcType="BIGINT" />
+    <result column="remark" property="Remark" jdbcType="VARCHAR" />
+    <result column="Location" property="Location" jdbcType="VARCHAR" />
+    <result column="Action1" property="Action" jdbcType="VARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_traces
+    where traces_id = #{tracesId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="swd.logistics.po.Traces" >
+    insert into t_traces (acceptTime, acceptStation,
+      logistics_info_id,remark,Location,Action1)
+    values (#{acceptTime,jdbcType=TIMESTAMP}, #{acceptStation,jdbcType=VARCHAR},
+      #{logisticsInfoId,jdbcType=BIGINT}, #{Remark,jdbcType=VARCHAR},#{Location,jdbcType=VARCHAR},
+      #{Action,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="swd.logistics.po.Traces" >
+    update t_traces
+    set acceptTime = #{acceptTime,jdbcType=TIMESTAMP},
+      acceptStation = #{acceptStation,jdbcType=VARCHAR},
+      logistics_info_id = #{logisticsInfoId,jdbcType=BIGINT},
+      remark = #{Remark,jdbcType=VARCHAR},
+      Location = #{Location,jdbcType=VARCHAR},
+      Action1 = #{Action,jdbcType=VARCHAR}
+    where traces_id = #{tracesId,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select traces_id, acceptTime, acceptStation, logistics_info_id,remark,Location,Action1
+    from t_traces
+    where traces_id = #{tracesId,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select traces_id, acceptTime, acceptStation, logistics_info_id,remark,Location,Action1
+    from t_traces
+  </select>
+  
+  <insert id="saveTracesByInfo" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="tracesId">
+    insert into t_traces ( acceptTime, acceptStation,
+      logistics_info_id,remark,Location,Action1) values
+      <foreach collection="list" item="traces" separator=",">
+        (
+        #{traces.acceptTime,jdbcType=TIMESTAMP},
+        #{traces.acceptStation,jdbcType=VARCHAR},
+        #{traces.logisticsInfoId,jdbcType=BIGINT},
+        #{traces.Remark,jdbcType=VARCHAR},
+        #{traces.Location,jdbcType=VARCHAR},
+        #{traces.Action,jdbcType=VARCHAR}
+        )
+      </foreach>
+  </insert>
+</mapper>

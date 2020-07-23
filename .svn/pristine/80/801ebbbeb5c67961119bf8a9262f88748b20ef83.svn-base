@@ -1,0 +1,9 @@
+spring.profiles.active=dev
+
+spring.resources.static-locations=classpath:/
+
+mybatis.mapper-locations=classpath:/mapper/*.xml
+#自动开启驼峰命名法，否则注解查询结果会映射不到实体类上，因为数据库里的字段是下划线开始
+mybatis.configuration.map-underscore-to-camel-case=true
+
+

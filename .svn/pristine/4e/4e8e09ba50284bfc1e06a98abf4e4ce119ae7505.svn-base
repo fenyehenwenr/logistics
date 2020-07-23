@@ -1,0 +1,9 @@
+spring.profiles.active=dev
+
+spring.resources.static-locations=classpath:/
+
+mybatis.mapper-locations=classpath:/mapper/*.xml
+#�Զ������շ�������������ע���ѯ�����ӳ�䲻��ʵ�����ϣ���Ϊ���ݿ�����ֶ����»��߿�ʼ
+mybatis.configuration.map-underscore-to-camel-case=true
+
+

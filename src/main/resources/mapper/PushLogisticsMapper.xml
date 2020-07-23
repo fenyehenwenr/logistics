@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="swd.logistics.dao.PushLogisticsMapper" >
+  <resultMap id="BaseResultMap" type="swd.logistics.po.PushLogistics" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="count" property="count" jdbcType="VARCHAR" />
+    <result column="push_time" property="pushTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_push_logistics
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="swd.logistics.po.PushLogistics" useGeneratedKeys="true" keyProperty="id" >
+    insert into t_push_logistics (count, push_time
+      )
+    values ( #{count,jdbcType=VARCHAR}, #{pushTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="swd.logistics.po.PushLogistics" >
+    update t_push_logistics
+    set count = #{count,jdbcType=VARCHAR},
+      push_time = #{pushTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, count, push_time
+    from t_push_logistics
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, count, push_time
+    from t_push_logistics
+  </select>
+</mapper>

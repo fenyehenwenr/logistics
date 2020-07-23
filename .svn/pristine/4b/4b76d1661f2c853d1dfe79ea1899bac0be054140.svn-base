@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="swd.logistics.dao.SenderMapper" >
+  <resultMap id="BaseResultMap" type="swd.logistics.po.Sender" >
+    <id column="sender_id" property="senderId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="post_code" property="postCode" jdbcType="VARCHAR" />
+    <result column="province_name" property="provinceName" jdbcType="VARCHAR" />
+    <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+    <result column="exp_area_name" property="expAreaName" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="is_default" property="isDefault" jdbcType="INTEGER" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_sender
+    where sender_id = #{senderId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="swd.logistics.po.Sender" >
+    insert into t_sender (sender_id, name, mobile, 
+      post_code, province_name, city_name, 
+      exp_area_name, address, is_default
+      )
+    values (#{senderId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, 
+      #{postCode,jdbcType=VARCHAR}, #{provinceName,jdbcType=VARCHAR}, #{cityName,jdbcType=VARCHAR}, 
+      #{expAreaName,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{isDefault,jdbcType=INTEGER}
+      )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="swd.logistics.po.Sender" >
+    update t_sender
+    set name = #{name,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      post_code = #{postCode,jdbcType=VARCHAR},
+      province_name = #{provinceName,jdbcType=VARCHAR},
+      city_name = #{cityName,jdbcType=VARCHAR},
+      exp_area_name = #{expAreaName,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      is_default = #{isDefault,jdbcType=INTEGER}
+    where sender_id = #{senderId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select sender_id, name, mobile, post_code, province_name, city_name, exp_area_name, 
+    address, is_default
+    from t_sender
+    where sender_id = #{senderId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select sender_id, name, mobile, post_code, province_name, city_name, exp_area_name, 
+    address, is_default
+    from t_sender
+  </select>
+</mapper>
